@@ -646,6 +646,7 @@ public class PlayFragment extends BaseLazyFragment {
         sourceViewModel.playResult.observe(this, new Observer<JSONObject>() {
             @Override
             public void onChanged(JSONObject info) {
+                webPlayUrl = null;
                 if (info != null) {
                     try {
                         progressKey = info.optString("proKey", null);
@@ -695,7 +696,6 @@ public class PlayFragment extends BaseLazyFragment {
                         HashMap<String, String> headers = null;
                         webUserAgent = null;
                         webHeaderMap = null;
-                        webPlayUrl = null;
                         if (info.has("header")) {
                             try {
                                 JSONObject hds = new JSONObject(info.getString("header"));
@@ -1077,6 +1077,20 @@ public class PlayFragment extends BaseLazyFragment {
     void stopParse() {
         mHandler.removeMessages(100);
         stopLoadWebView(false);
+        OkGo.getInstance().cancelTag("json_jx");
+        if (parseThreadPool != null) {
+            try {
+                parseThreadPool.shutdown();
+                parseThreadPool = null;
+            } catch (Throwable th) {
+                th.printStackTrace();
+            }
+        }
+    }
+
+    void stopParsePlay() {
+        mHandler.removeMessages(100);
+        stopLoadWebView(true);
         OkGo.getInstance().cancelTag("json_jx");
         if (parseThreadPool != null) {
             try {
